@@ -25,7 +25,7 @@ const articleSchema = new mongoose.Schema({
   },
   link: {
     type: String,
-    validate: { validator: validator.isUrl },
+    validate: { validator: validator.isURL },
     required: true,
   },
   image: {
