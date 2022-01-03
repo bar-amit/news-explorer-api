@@ -26,7 +26,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "helmet": "^5.0.0",
-    "mongoose": "^6.1.4"
+    "mongoose": "^6.1.4",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "eslint": "^8.6.0",
