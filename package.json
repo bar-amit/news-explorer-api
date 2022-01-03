@@ -1,0 +1,32 @@
+{
+  "name": "news-explorer-api",
+  "version": "1.0.0",
+  "description": "A backend for the news-explorer app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bar-amit/news-explorer-api.git"
+  },
+  "author": "Bar Amit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bar-amit/news-explorer-api/issues"
+  },
+  "homepage": "https://github.com/bar-amit/news-explorer-api#readme",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "celebrate": "^15.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "helmet": "^5.0.0",
+    "mongoose": "^6.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
