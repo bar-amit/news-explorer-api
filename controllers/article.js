@@ -34,7 +34,10 @@ module.exports = {
       .then((articleToDelete) => {
         if (!articleToDelete) throw new Error('Article was not found');
         else if (`${articleToDelete.owner}` !== userId) throw Error('Permission denied');
-        else return article.findByIdAndDelete(articleId).then(deletedArticle => res.send({deletedArticle}));
+        else {
+          return article.findByIdAndDelete(articleId)
+            .then((deletedArticle) => res.send({ deletedArticle }));
+        }
       })
       .catch((err) => res.status(500).send({ message: err.message }));
   },
