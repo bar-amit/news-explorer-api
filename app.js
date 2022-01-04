@@ -6,6 +6,7 @@ const cors = require('cors');
 const { userRouter, articleRouter } = require('./routes');
 const { login, signup } = require('./controllers/user');
 const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.use(auth);
 
 app.use(userRouter);
 app.use(articleRouter);
+
+app.use(errorHandler);
 
 mongoose.connect('mongodb://localhost:27017/news-explorer-db');
 app.listen(3000, () => console.log('Listening on port 3000'));
