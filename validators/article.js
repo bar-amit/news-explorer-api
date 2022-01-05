@@ -30,7 +30,6 @@ const articleDataValidator = celebrate({
     source: Joi.string().required(),
     link: Joi.string().required().custom(validateURL),
     image: Joi.string().required(),
-    owner: Joi.string().required().custom(validateMongoId),
   }),
 });
 
