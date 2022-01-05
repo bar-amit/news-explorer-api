@@ -1,18 +1,18 @@
-const { celebrate, Joi } = require("celebrate");
-const validator = require("validator");
+const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 
 function validateURL(value, helpers) {
   if (validator.isURL(value)) {
     return value;
   }
-  return helpers.error("string.uri");
+  return helpers.error('string.uri');
 }
 
 function validateMongoId(value, helpers) {
   if (validator.isMongoId(value)) {
     return value;
   }
-  return helpers.error("string.id");
+  return helpers.error('string.id');
 }
 
 const idValidator = celebrate({

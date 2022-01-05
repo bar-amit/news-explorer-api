@@ -1,4 +1,4 @@
-const { celebrate, Joi } = require("celebrate");
+const { celebrate, Joi } = require('celebrate');
 
 module.exports.authValidator = celebrate({
   headers: Joi.object()
