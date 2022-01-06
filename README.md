@@ -2,6 +2,8 @@
 
 A backend for my News Explorer app.
 
+The API is running on Google Cloud: [https://api.bar-news-explorer.students.nomoreparties.sbs](https://api.bar-news-explorer.students.nomoreparties.sbs).
+
 ## [API](https://api.bar-news-explorer.students.nomoreparties.sbs)
 
 - POST /signin  -- Sign in to the app.
