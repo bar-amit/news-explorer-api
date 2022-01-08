@@ -6,7 +6,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cors = require('cors');
 const { errors } = require('celebrate');
-const { userRouter, articleRouter } = require('./routes');
+const router = require('./routes');
 const { login, signup } = require('./controllers/user');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
@@ -36,8 +36,7 @@ app.post('/signup', userDataValidator, signup);
 
 app.use(auth);
 
-app.use(userRouter);
-app.use(articleRouter);
+app.use(router);
 
 app.use(errorLogger);
 app.use(errors());

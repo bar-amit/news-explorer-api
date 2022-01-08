@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const validator = require('validator');
 const { login, signup } = require('../../controllers/user');
-const { userRouter, articleRouter } = require('../index');
+const userRouter = require("../users");
 const auth = require('../../middlewares/auth');
 
 const app = express();
@@ -17,7 +17,6 @@ app.post('/signup', signup);
 app.use(auth);
 
 app.use(userRouter);
-app.use(articleRouter);
 
 const request = supertest(app);
 

@@ -2,9 +2,9 @@ const supertest = require('supertest');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const validator = require('validator');
 const { login, signup } = require('../../controllers/user');
-const { userRouter, articleRouter } = require('../index');
+const articleRouter = require('../articles');
+const userRouter = require('../users');
 const auth = require('../../middlewares/auth');
 
 const app = express();

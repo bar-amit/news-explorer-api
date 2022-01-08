@@ -1,14 +1,10 @@
 const express = require('express');
-const { getUserInfo } = require('../controllers/user');
-const { deleteArticle, saveArticle, getArticles } = require('../controllers/article');
-const { idValidator, articleDataValidator } = require('../validators/article');
+const userRouter = require('./users');
+const articleRouter = require('./articles');
 
-const userRouter = express.Router();
-userRouter.get('/users/me', getUserInfo);
+const router = express.Router();
 
-const articleRouter = express.Router();
-articleRouter.delete('/articles/:id', idValidator, deleteArticle);
-articleRouter.post('/articles', articleDataValidator, saveArticle);
-articleRouter.get('/articles', getArticles);
+router.use(userRouter);
+router.use(articleRouter);
 
-module.exports = { userRouter, articleRouter };
+module.exports = router;
