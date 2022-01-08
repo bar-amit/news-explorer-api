@@ -13,6 +13,8 @@ const errorHandler = require('./middlewares/errorHandler');
 const { userLoginValidator, userDataValidator } = require('./validators/user');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
+const { DB = 'mongodb://localhost:27017/news-explorer-db', PORT = 3000 } = process.env;
+
 const app = express();
 
 app.use('/api', limiter);
@@ -34,5 +36,5 @@ app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
 
-mongoose.connect('mongodb://localhost:27017/news-explorer-db');
-app.listen(3000);
+mongoose.connect(DB);
+app.listen(PORT);
