@@ -2,10 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const user = require('../models/user');
 const {
-  BadRequestError,
   NotFoundError,
   ServerError,
   DuplicateError,
+  UnauthorizedErorr,
 } = require('../utils/errors');
 
 const { JWT_SECRET = 'not-a-secret' } = process.env;
@@ -25,11 +25,11 @@ module.exports = {
       .findOne({ email })
       .select('+password')
       .then((foundUser) => {
-        if (!foundUser) next(new BadRequestError('Bad email and/or password.'));
+        if (!foundUser) next(new UnauthorizedErorr('Bad email and/or password.'));
         return bcrypt
           .compare(password, foundUser.password)
           .then((matched) => {
-            if (!matched) next(new BadRequestError('Bad email and/or password.'));
+            if (!matched) next(new UnauthorizedErorr('Bad email and/or password.'));
             const token = jwt.sign({ _id: foundUser._id }, JWT_SECRET);
             res.send({ token });
           });
