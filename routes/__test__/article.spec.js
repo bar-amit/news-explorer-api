@@ -1,19 +1,19 @@
-const supertest = require('supertest');
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const { login } = require('../../controllers/user');
-const user = require('../../models/user');
-const article = require('../../models/article');
-const articleRouter = require('../articles');
-const userRouter = require('../users');
-const auth = require('../../middlewares/auth');
+const supertest = require("supertest");
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const { login } = require("../../controllers/user");
+const user = require("../../models/user");
+const article = require("../../models/article");
+const articleRouter = require("../articles");
+const userRouter = require("../users");
+const auth = require("../../middlewares/auth");
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use('/signin', login);
+app.use("/signin", login);
 
 app.use(auth);
 
@@ -22,32 +22,33 @@ app.use(articleRouter);
 
 const request = supertest(app);
 
-describe('Article routes', () => {
-  const fakePassword = '123456';
-  const fakeEmail = 'article.test@email.com';
-  const fakeUsername = 'Mr. Test';
+describe("Article routes", () => {
+  const fakePassword = "123456";
+  const fakeEmail = "article.test@email.com";
+  const fakeUsername = "Mr. Test";
   const fakeArticle = {
-    keyword: 'search term',
-    title: 'test article',
-    text: 'This is some test I wrote while testing my app. Why? Who knows.',
-    date: '8/1/2022',
-    source: 'test news',
-    link: 'http://test.news.com/article',
-    image: 'http://unsplash.com/image',
+    keyword: "search term",
+    title: "test article",
+    text: "This is some test I wrote while testing my app. Why? Who knows.",
+    date: "8/1/2022",
+    source: "test news",
+    link: "http://test.news.com/article",
+    image: "http://unsplash.com/image",
   };
 
   let token;
   let userId;
   let articleId;
 
-
   beforeAll(async () => {
     try {
-      await mongoose.connect("mongodb://localhost:27017/news-exporer-test-db-articles");
+      await mongoose.connect(
+        "mongodb://localhost:27017/news-exporer-test-db-articles"
+      );
       const newUser = await user.create({
-      name: fakeUsername,
-      email: fakeEmail,
-      password: fakePassword,
+        name: fakeUsername,
+        email: fakeEmail,
+        password: fakePassword,
       });
       userId = newUser._id;
       token = await request
@@ -61,10 +62,12 @@ describe('Article routes', () => {
         .then((res) => {
           return res.body.token;
         });
-      const newArticle = await article.create({...fakeArticle, owner: userId});
+      const newArticle = await article.create({
+        ...fakeArticle,
+        owner: userId,
+      });
       articleId = newArticle._id;
-    }
-    catch(e) {
+    } catch (e) {
       throw e;
     }
   });
@@ -75,13 +78,13 @@ describe('Article routes', () => {
     });
   });
 
-  it('Saves an article', (done) => {
+  it("Saves an article", (done) => {
     request
-      .post('/articles')
+      .post("/articles")
       .send({ ...fakeArticle })
-      .set('Content-Type', 'application/json')
-      .set('Authorization', `Bearer ${token}`)
-      .set('Accept', 'application/json')
+      .set("Content-Type", "application/json")
+      .set("Authorization", `Bearer ${token}`)
+      .set("Accept", "application/json")
       .expect(200, (err, res) => {
         if (err) throw err;
         expect(res.body.keyword).toBe(fakeArticle.keyword);
@@ -95,22 +98,39 @@ describe('Article routes', () => {
       });
   });
 
-  it('Get articles',  (done) => {
+  it("Get articles", (done) => {
     request
-        .get("/articles")
-        .set("Authorization", `Bearer ${token}`)
-        .set("Accept", "application/json")
-        .expect(200, (err, res) => {
-          if(err) throw err;
-          expect(res.body.length).toBeGreaterThan(0);
-          done();
-        });
+      .get("/articles")
+      .set("Authorization", `Bearer ${token}`)
+      .set("Accept", "application/json")
+      .expect(200, (err, res) => {
+        if (err) throw err;
+        expect(res.body.length).toBeGreaterThan(0);
+        done();
+      });
   });
 
-  it('Delete article', (done) => {
+  it("Delete article", (done) => {
     request
-        .delete(`/articles/${articleId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .expect(200, () => done());
+      .delete(`/articles/${articleId}`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200, () => done());
   });
+
+  // it("Can't delete article of another user", async () => {
+  //   const otherUser = {
+  //     email: "other@mail.com",
+  //     password: "123456",
+  //     name: "the other one",
+  //   };
+  //   const { _id: otherUserId } = await user.create(otherUser);
+  //   const { _id: deleteArticleId } = await article.create({
+  //     ...fakeArticle,
+  //     owner: otherUserId,
+  //   });
+  //   await request
+  //     .delete(`/articles/${deleteArticleId}`)
+  //     .set("Authorization", `Bearer ${token}`)
+  //     .expect(403);
+  // });
 });
