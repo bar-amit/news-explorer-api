@@ -2,7 +2,9 @@ const supertest = require('supertest');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { login, signup } = require('../../controllers/user');
+const { login } = require('../../controllers/user');
+const user = require('../../models/user');
+const article = require('../../models/article');
 const articleRouter = require('../articles');
 const userRouter = require('../users');
 const auth = require('../../middlewares/auth');
@@ -11,8 +13,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.post('/signin', login);
-app.post('/signup', signup);
+app.use('/signin', login);
 
 app.use(auth);
 
@@ -36,37 +37,36 @@ describe('Article routes', () => {
   };
 
   let token;
+  let userId;
+  let articleId;
 
-  beforeAll((done) => {
-    mongoose.connect('mongodb://localhost:27017/news-exporer-test-db', () => {
-      request
-        .post('/signup')
+
+  beforeAll(async () => {
+    try {
+      await mongoose.connect("mongodb://localhost:27017/news-exporer-test-db-articles");
+      const newUser = await user.create({
+      name: fakeUsername,
+      email: fakeEmail,
+      password: fakePassword,
+      });
+      userId = newUser._id;
+      token = await request
+        .post("/signin")
         .send({
-          name: fakeUsername,
           email: fakeEmail,
           password: fakePassword,
         })
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json')
-        .end((err, res) => {
-          if (err) throw err;
-          request
-            .post('/signin')
-            .send({
-              email: fakeEmail,
-              password: fakePassword,
-            })
-            .set('Content-Type', 'application/json')
-            .set('Accept', 'application/json')
-            .then((res) => {
-              token = res.body.token;
-              done();
-            })
-            .catch((err) => {
-              throw err;
-            });
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json")
+        .then((res) => {
+          return res.body.token;
         });
-    });
+      const newArticle = await article.create({...fakeArticle, owner: userId});
+      articleId = newArticle._id;
+    }
+    catch(e) {
+      throw e;
+    }
   });
 
   afterAll((done) => {
@@ -82,8 +82,7 @@ describe('Article routes', () => {
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${token}`)
       .set('Accept', 'application/json')
-      .expect(200)
-      .end((err, res) => {
+      .expect(200, (err, res) => {
         if (err) throw err;
         expect(res.body.keyword).toBe(fakeArticle.keyword);
         expect(res.body.title).toBe(fakeArticle.title);
@@ -96,61 +95,22 @@ describe('Article routes', () => {
       });
   });
 
-  it('Get articles', async () => {
-    try {
-      const { _id: id } = await request
-        .post('/articles')
-        .send({ ...fakeArticle })
-        .set('Content-Type', 'application/json')
-        .set('Authorization', `Bearer ${token}`)
-        .set('Accept', 'application/json')
-        .expect(200)
-        .then((res) => res.body)
-        .catch((err) => {
-          throw err;
-        });
-      await request
-        .get('/articles')
-        .set('Authorization', `Bearer ${token}`)
-        .set('Accept', 'application/json')
-        .expect(200)
-        .then((res) => {
+  it('Get articles',  (done) => {
+    request
+        .get("/articles")
+        .set("Authorization", `Bearer ${token}`)
+        .set("Accept", "application/json")
+        .expect(200, (err, res) => {
+          if(err) throw err;
           expect(res.body.length).toBeGreaterThan(0);
-          expect(res.body.find((i) => i._id === id)).toBeTruthy();
-        })
-        .catch((err) => {
-          throw err;
+          done();
         });
-    } catch (err) {
-      throw err;
-    }
   });
 
-  it('Delete article', async () => {
-    try {
-      const { _id: id } = await request
-        .post('/articles')
-        .send({ ...fakeArticle })
-        .set('Content-Type', 'application/json')
+  it('Delete article', (done) => {
+    request
+        .delete(`/articles/${articleId}`)
         .set('Authorization', `Bearer ${token}`)
-        .set('Accept', 'application/json')
-        .expect(200)
-        .then((res) => res.body)
-        .catch((err) => {
-          throw err;
-        });
-      request
-        .delete(`/articles/${id}`)
-        .set('Authorization', `Bearer ${token}`)
-        .expect(200)
-        .then((res) => {
-          expect(res.body._id, id);
-        })
-        .catch((err) => {
-          throw err;
-        });
-    } catch (err) {
-      throw err;
-    }
+        .expect(200, () => done());
   });
 });

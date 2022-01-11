@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const validator = require('validator');
 const { login, signup } = require('../../controllers/user');
+const user = require('../../models/user');
 const userRouter = require("../users");
 const auth = require('../../middlewares/auth');
 
@@ -75,18 +76,11 @@ describe('User routes', () => {
   });
 
   it('Login user', (done) => {
-    request
-      .post('/signup')
-      .send({
+    user.create({
         name: fakeUsername,
         email: fakeEmail,
         password: fakePassword,
-      })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
-      .expect(201)
-      .end((err, res) => {
-        if (err) throw err;
+      }).then(() => {
         request
           .post('/signin')
           .send({
@@ -105,33 +99,22 @@ describe('User routes', () => {
 
   it('Get user data', async () => {
     try {
+      await user.create({
+        name: fakeUsername,
+        email: fakeEmail,
+        password: fakePassword,
+      });
       const token = await request
-        .post('/signup')
+        .post("/signin")
         .send({
-          name: fakeUsername,
           email: fakeEmail,
           password: fakePassword,
         })
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json')
-        .expect(201)
-        .then((err, res) => request
-          .post('/signin')
-          .send({
-            email: fakeEmail,
-            password: fakePassword,
-          })
-          .set('Content-Type', 'application/json')
-          .set('Accept', 'application/json')
-          .then((res) => {
-            const { token } = res.body;
-            return token;
-          })
-          .catch((err) => {
-            throw err;
-          }))
-        .catch((err) => {
-          throw err;
+        .set("Content-Type", "application/json")
+        .set("Accept", "application/json")
+        .then((res) => {
+          const { token } = res.body;
+          return token;
         });
       await request
         .get('/users/me')
@@ -142,9 +125,6 @@ describe('User routes', () => {
           expect(name).toBe(fakeUsername);
           expect(validator.isMongoId(id)).toBeTruthy();
           expect(email).toBe(fakeEmail);
-        })
-        .catch((err) => {
-          throw err;
         });
     } catch (err) {
       throw err;
