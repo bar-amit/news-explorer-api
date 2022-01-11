@@ -44,7 +44,7 @@ module.exports = {
         if (!articleToDelete) next(new NotFoundError('Article was not found.'));
         else if (`${articleToDelete.owner}` !== userId) next(new ForbiddenError('User do not own this article.'));
         return article.findByIdAndDelete(articleId)
-          .then((deletedArticle) => res.send({ deletedArticle }));
+          .then((deletedArticle) => res.send({ ...deletedArticle }));
       })
       .catch((err) => next(new ServerError(err)));
   },
